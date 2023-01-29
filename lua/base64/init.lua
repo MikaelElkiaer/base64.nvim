@@ -12,7 +12,7 @@ end
 local call_base64 = function(text, ...)
 	local text_decoded = vim.fn.system({ "base64", unpack(...) }, text):gsub("%s+", "")
 	local exit_code = vim.v.shell_error
-	local ok = exit_code == 0
+  local ok = exit_code == 0
 
 	return ok, text_decoded
 end
@@ -55,19 +55,22 @@ local create_popup = function(title)
 end
 
 M.decode = function()
-	local text, x1, y1, x2, y2 = get_selection()
+	local parent_buf = vim.api.nvim_get_current_buf()
+  local x, y = unpack(vim.api.nvim_win_get_cursor(0))
+  local node = vim.treesitter.get_node_at_pos(parent_buf, x - 1, y - 1, { })
+  local text = vim.treesitter.query.get_node_text(node, parent_buf, {})
+  local x1, y1, x2, y2 = node:range()
 	local ok, text_decoded = call_base64(text, { "--decode" })
 	if not ok then
-		vim.notify("Base64 decoding failed", vim.log.levels.WARN)
+		vim.notify("Base64 decoding failed: " .. text, vim.log.levels.WARN)
 		return
 	end
 
-	local parent_buf = vim.api.nvim_get_current_buf()
 	local popup = create_popup("Base64 edit:")
 	popup:map("n", "u", function(_)
 		local text_updated = vim.api.nvim_buf_get_text(popup.bufnr, 0, 0, -1, -1, {})
 		local text_encoded = vim.fn.system({ "base64", "--wrap", "0" }, text_updated)
-		vim.api.nvim_buf_set_text(parent_buf, x1 - 1, y1 - 1, x2 - 1, y2 + 1, { text_encoded })
+		vim.api.nvim_buf_set_text(parent_buf, x1, y1, x2, y2, { text_encoded })
 		vim.api.nvim_buf_delete(popup.bufnr, {})
 	end)
 	popup:mount()
