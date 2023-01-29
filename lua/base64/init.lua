@@ -9,6 +9,10 @@ M.encode = function()
 
 	local Popup = require("nui.popup")
 	local popup = Popup({
+		buf_options = {
+			modifiable = true,
+			readonly = false,
+		},
 		enter = true,
 		focusable = true,
 		border = {
