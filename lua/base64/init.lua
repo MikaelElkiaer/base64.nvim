@@ -1,4 +1,9 @@
 local M = {}
+
+M.decode = function ()
+  
+end
+
 M.encode = function()
 	local row1, col1 = unpack(vim.fn.getpos("v"), 2, 3)
 	local row2, col2 = unpack(vim.api.nvim_win_get_cursor(0))
@@ -9,27 +14,40 @@ M.encode = function()
 
 	local Popup = require("nui.popup")
 	local popup = Popup({
+		border = {
+			padding = { 1, 1 },
+			style = "rounded",
+			text = {
+				bottom = "[u]pdate or [q]uit",
+				bottom_align = "right",
+				top = "Base64 encoded:",
+				top_align = "left",
+			},
+		},
 		buf_options = {
 			modifiable = true,
 			readonly = false,
 		},
 		enter = true,
 		focusable = true,
-		border = {
-			style = "rounded",
-		},
 		position = 1,
 		relative = "cursor",
 		size = {
 			width = "50%",
 			height = 5,
 		},
+		win_options = {
+			winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
+		},
 	})
-  popup:map("n", "q", vim.api.nvim_buf_delete)
-  popup:map("n", "w", function(bufnr)
-    vim.api.nvim_buf_set_text(vim.api.nvim_get_current_buf(), row1 - 1, col1 - 1, row2 - 1, col2 - 1, { encoded })
-    vim.api.nvim_buf_delete(bufnr, {})
-  end)
+	local parent_buf = vim.api.nvim_get_current_buf()
+	popup:map("n", "q", function(_)
+		vim.api.nvim_buf_delete(popup.bufnr, {})
+	end)
+	popup:map("n", "u", function(_)
+		vim.api.nvim_buf_set_text(parent_buf, row1 - 1, col1 - 1, row2 - 1, col2 + 1, { encoded })
+		vim.api.nvim_buf_delete(popup.bufnr, {})
+	end)
 	popup:mount()
 	vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, { encoded })
 end
