@@ -17,7 +17,7 @@ M.encode = function()
 		position = 1,
 		relative = "cursor",
 		size = {
-			width = "50%",
+			width = 1,
 			height = 1,
 		},
 	})
