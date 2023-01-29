@@ -21,8 +21,8 @@ M.encode = function()
 		position = 1,
 		relative = "cursor",
 		size = {
-			width = 1,
-			height = 1,
+			width = "50%",
+			height = 5,
 		},
 	})
 	popup:mount()
