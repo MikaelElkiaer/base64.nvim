@@ -24,7 +24,7 @@ local create_popup = function(title)
 			padding = { 1, 1 },
 			style = "rounded",
 			text = {
-				bottom = "[u]pdate or [q]uit",
+				bottom = "Insert [e]ncoded, [d]ecoded, or [q]uit",
 				bottom_align = "right",
 				top = title,
 				top_align = "left",
@@ -63,11 +63,16 @@ M.decode = function()
 	end
 
 	local parent_buf = vim.api.nvim_get_current_buf()
-	local popup = create_popup("Base64 edit:")
-	popup:map("n", "u", function(_)
+	local popup = create_popup("Base64 decode:")
+	popup:map("n", "e", function(_)
 		local text_updated = vim.api.nvim_buf_get_text(popup.bufnr, 0, 0, -1, -1, {})
 		local text_encoded = vim.fn.system({ "base64", "--wrap", "0" }, text_updated)
 		vim.api.nvim_buf_set_text(parent_buf, x1 - 1, y1 - 1, x2 - 1, y2 + 1, { text_encoded })
+		vim.api.nvim_buf_delete(popup.bufnr, {})
+	end)
+	popup:map("n", "d", function(_)
+		local text_updated = vim.api.nvim_buf_get_text(popup.bufnr, 0, 0, -1, -1, {})
+		vim.api.nvim_buf_set_text(parent_buf, x1 - 1, y1 - 1, x2 - 1, y2 + 1, text_updated)
 		vim.api.nvim_buf_delete(popup.bufnr, {})
 	end)
 	popup:mount()
@@ -85,8 +90,11 @@ M.encode = function()
 
 	local parent_buf = vim.api.nvim_get_current_buf()
 	local popup = create_popup("Base64 encode:")
-	popup:map("n", "u", function(_)
+	popup:map("n", "e", function(_)
 		vim.api.nvim_buf_set_text(parent_buf, x1 - 1, y1 - 1, x2 - 1, y2 + 1, { text_encoded })
+		vim.api.nvim_buf_delete(popup.bufnr, {})
+	end)
+	popup:map("n", "d", function(_)
 		vim.api.nvim_buf_delete(popup.bufnr, {})
 	end)
 	popup:mount()
